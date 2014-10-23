@@ -62,4 +62,4 @@ Create a tag in the webpage for the audio instead of using mixed_content in java
 
 CREDITS
 ----
-<a src="https://github.com/Hybris95">Christian BUISSON</a>
+<a href="https://github.com/Hybris95">Christian BUISSON</a>

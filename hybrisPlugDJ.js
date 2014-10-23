@@ -44,6 +44,9 @@ if(!loadedSound){
 var changedAutoW;
 var autoW;
 
+var changedAutoJ;
+var autoJ;
+
 var changedAutoNotice;
 var autoNotice;
 
@@ -176,6 +179,10 @@ if(!advanceFunction){
 
 function woot() {
     $("#woot").click();
+}
+
+function join() {
+    $("#dj-button").click();
 }
 
 var videoHeight;
@@ -397,6 +404,23 @@ function switchAutoWoot(){
         startAutoWoot();
     }
 }
+function startAutoJoin(){
+    autoW = true;
+    $("#hybrisAutoJoin").css("background-color", "#105D2F");
+    join();
+}
+function stopAutoJoin(){
+    autoW = false;
+    $("#hybrisAutoJoin").css("background-color", "#5D102F");
+}
+function switchAutoJoin(){
+    changedAutoJ = true;
+    if(autoJ){
+        stopAutoJoin();
+    }else{
+        startAutoJoin();
+    }
+}
 function startAutoNotice(){
     autoNotice = true;
     $("#hybrisMention").css("background-color", "#105D2F");
@@ -593,6 +617,7 @@ function setupHybrisToolBar(){
     $("#hybrisHeader").css("left", hybrisHeaderLeftPos + "px");
     $("#hybrisHeader").css("width", "100%");
     setupButton("hybrisAutoWoot", "icon-woot-disabled", switchAutoWoot, "AutoWoot");
+    setupButton("hybrisAutoJoin", "icon-join-disabled", switchAutoJoin, "AutoJoin");
     setupButton("hybrisMention", "icon-chat-sound-on", switchAutoNotice, "Mention sound notification");
     setupButton("hybrisJoiners", "icon-ignore", switchAutoNoticeJoinersLeavers, "Joiners/Leavers notification");
     setupButton("hybrisEta", "icon-history-white", getEta, "Give ETA");
@@ -616,6 +641,16 @@ function main(){
         }
     }else{
         stopAutoWoot();
+    }
+    
+    if(changedAutoJ){
+        if(autoJ){
+            startAutoJoin();
+        }else{
+            stopAutoJoin();
+        }
+    }else{
+        stopAutoJoin();
     }
     
     if(changedAutoNotice){

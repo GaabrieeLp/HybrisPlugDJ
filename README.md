@@ -2,7 +2,7 @@ Hybris PlugDJ Scripts
 =====================
 Licensing
 ---------
-Christian BUISSON French Developper contact by electronic mail: hybris_95@hotmail.com
+Christian BUISSON French Developper contact by electronic mail: hybris_95@hotmail.com   
 Gabriel POSSAMAI Brazilian Developper contact by electronic mail: gabrielf.possamai@gmail.com
 
 Copyright © 2014 Christian BUISSON / Gabriel POSSAMAI

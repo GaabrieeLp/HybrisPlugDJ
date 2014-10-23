@@ -1,11 +1,12 @@
 Hybris PlugDJ Scripts
 =====================
 Licensing
----------
-Christian BUISSON French Developper contact by electronic mail: hybris_95@hotmail.com   
-Gabriel POSSAMAI Brazilian Developper contact by electronic mail: gabrielf.possamai@gmail.com
+---------  
+Gabriel POSSAMAI   
+Brazilian Developper  
+Contact by electronic mail: gabrielf.possamai@gmail.com
 
-Copyright © 2014 Christian BUISSON / Gabriel POSSAMAI
+Copyright © 2014 Gabriel POSSAMAI
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -58,3 +59,7 @@ And set it to false (by double clicking on it).
 TODO
 ----
 Create a tag in the webpage for the audio instead of using mixed_content in javascript.
+
+CREDITS
+----
+<a src="https://github.com/Hybris95">Christian BUISSON</a>

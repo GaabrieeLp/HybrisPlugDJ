@@ -174,6 +174,10 @@ if(!advanceFunction){
         if(autoW){
             woot();
         }
+        
+        if(autoJ){
+            join();
+        }
     };
 }
 

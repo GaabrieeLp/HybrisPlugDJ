@@ -446,19 +446,19 @@ if(!analyseChat){
         console.log(type);
         // Watch chat sent by other users
         if(username != ownUserName){
-            if(type.startsWith("message")){
+            if(type == "message"){
                 // AutoNotice (on every chat message)
                 if(settings.autoNotice == autoNotice.onChat){
                     loadedSound.play();
                 }
             }
-            else if(type.startsWith("mention")){
+            else if(type == "mention"){
                 // AutoNotice (on mention message)
                 if(settings.autoNotice == autoNotice.onMention || settings.autoNotice == autoNotice.onChat){
                     loadedSound.play();
                 }
             }
-            else if(type.startsWith("emote")){
+            else if(type == "emote"){
                 // AutoNotice (on mention message)
                 if(settings.autoNotice == autoNotice.onMention){
                     if(message.match("@" + ownUserName)){

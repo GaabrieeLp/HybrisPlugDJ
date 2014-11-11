@@ -39,13 +39,12 @@ javascript:(function(){$.getScript('https://rawgit.com/GaabrieeLp/HybrisPlugDJ/m
 /**
  * Global Vars
  */
-var debug = true;
+var debug = false;
 var ownUserName = API.getUser().username;
 var lastTimeStamp;
 var loadedSound;
 if(!loadedSound){
     loadedSound = new Audio("https://dl.dropboxusercontent.com/s/1qwhgujn6d0rbq7/chatsound.mp3");   //(decodeURIComponent("https://gmflowplayer.googlecode.com/files/notify.ogg"));
-	loadedSound.play();  //temporario para teste;
 }
 var oldWaitList = API.getWaitList();
 
@@ -277,6 +276,7 @@ if(!advanceFunction){
         if(settings.autoJ){
             join();
         }
+		updateQueueStatus();
     };
 }
 
@@ -298,11 +298,12 @@ function canAutoJoin(){
     return canJoin;
 }
 function join() {
-    if(debug){console.log("Try to autojoin");}
-    if(canAutoJoin()){
-        if(debug){console.log("Autojoins for real");}
-        API.djJoin();
-    }
+	//Temporary comment to let the join faster
+    //if(debug){console.log("Try to autojoin");}
+    //if(canAutoJoin()){
+    //    if(debug){console.log("Autojoins for real");}
+    API.djJoin();
+    //}
 }
 
 function hideUI(){
@@ -320,6 +321,15 @@ function showUI(){
     $("#dj-canvas").removeClass('hide-video');
     $('.background').show();
     $('.room-background').show();
+}
+function updateQueueStatus(){
+	if(API.getWaitListPosition() == 0) {
+		API.chatLog('Get ready @' + user.username + ', you\'re about to play!');
+		$('#waitlist-button').addClass('blue-bg');               
+	}
+	else {                      
+		$('#waitlist-button').removeClass('blue-bg');                                  
+	}
 }
 
 /**
@@ -417,7 +427,7 @@ if(!waitListUpdate){
             if(debug){console.log(waitListAdd);console.log(waitListDel);}
         }
         oldWaitList = newWaitList;
-        
+        //aqui
         if(settings.autoJ){
             join();
         }
@@ -443,7 +453,7 @@ if(!analyseChat){
         if(username == ownUserName){
             lastTimeStamp = timestamp;
         }
-        console.log(type);
+		
         // Watch chat sent by other users
         if(username != ownUserName){
             if(type == "message"){

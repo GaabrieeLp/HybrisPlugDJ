@@ -324,10 +324,6 @@ function showUI(){
 function updateQueueStatus(){
 	if(API.getWaitListPosition() == 0) {
 		API.chatLog('Get ready @' + ownUserName + ', you\'re about to play!');
-		$('#waitlist-button').addClass('blue-bg');               
-	}
-	else {                      
-		$('#waitlist-button').removeClass('blue-bg');                                  
 	}
 }
 

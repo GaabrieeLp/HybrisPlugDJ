@@ -443,7 +443,7 @@ if(!analyseChat){
         if(username == ownUserName){
             lastTimeStamp = timestamp;
         }
-        
+        console.log(type);
         // Watch chat sent by other users
         if(username != ownUserName){
             if(type.startsWith("message")){

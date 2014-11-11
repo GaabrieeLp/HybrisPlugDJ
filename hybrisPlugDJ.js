@@ -276,7 +276,6 @@ if(!advanceFunction){
         if(settings.autoJ){
             join();
         }
-		updateQueueStatus();
     };
 }
 
@@ -427,10 +426,12 @@ if(!waitListUpdate){
             if(debug){console.log(waitListAdd);console.log(waitListDel);}
         }
         oldWaitList = newWaitList;
-        //aqui
+		
         if(settings.autoJ){
             join();
         }
+		
+        updateQueueStatus();
     };
 }
 /**

@@ -39,7 +39,7 @@ javascript:(function(){$.getScript('https://rawgit.com/GaabrieeLp/HybrisPlugDJ/m
 /**
  * Global Vars
  */
-var debug = false;
+var debug = true;
 var ownUserName = API.getUser().username;
 var lastTimeStamp;
 var loadedSound;

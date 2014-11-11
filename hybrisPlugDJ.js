@@ -1,6 +1,9 @@
 /** GNU GPLv3 Licensing :
-Christian BUISSON French Developper contact by electronic mail: hybris_95@hotmail.com
-Copyright © 2014 Christian BUISSON
+Gabriel POSSAMAI
+Brazilian Developper
+Contact by electronic mail: gabrielf.possamai@gmail.com
+
+Copyright © 2014 Gabriel POSSAMAI
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,15 +18,18 @@ Copyright © 2014 Christian BUISSON
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software Foundation,
     Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+    
+Credits
+    Christian BUISSON (https://github.com/Hybris95)
 */
 
 /** USAGE :
 Firefox:
 Add the following line as a bookmark :
-javascript:(function(){$.getScript('https://raw.githubusercontent.com/Hybris95/HybrisPlugDJ/master/hybrisPlugDJ.js');}());
+javascript:(function(){$.getScript('https://raw.githubusercontent.com/GaabrieeLp/HybrisPlugDJ/master/hybrisPlugDJ.js');}());
 Chrome:
 Add the following line as a bookmark :
-javascript:(function(){$.getScript('https://rawgit.com/Hybris95/HybrisPlugDJ/master/hybrisPlugDJ.js');}());
+javascript:(function(){$.getScript('https://rawgit.com/GaabrieeLp/HybrisPlugDJ/master/hybrisPlugDJ.js');}());
  ** Usage Method :
  ** copy/paste the entire script into the Firefox/Chrome Console (Ctrl+Shift+C Shortcut)
  ** For Firefox users (if you want notice sound) :
@@ -40,27 +46,84 @@ var loadedSound;
 if(!loadedSound){
     loadedSound = new Audio(decodeURIComponent("https://gmflowplayer.googlecode.com/files/notify.ogg"));
 }
-
-var changedAutoW;
-var autoW;
-
-var changedAutoJ;
-var autoJ;
-
-var changedAutoNotice;
-var autoNotice;
-
-var changedAutoJoinLeaveNotice;
-var autoJoinLeaveNotice;
-
-var changedAutoHUI;
-var autoHUI;
+var oldWaitList = API.getWaitList();
 
 /**
  * Just a chill room features
  */
 function isInChill(){
 	return window.location.pathname == "/new-to-this-shit-mrsuicidesheep";
+}
+/**
+ * Electro, Dubstep & Techno features
+ */
+function isInEDT(){
+    return window.location.pathname == "/edtentertainment";
+}
+/**
+ * Tastycat features
+ */
+function isInTasty(){
+    return window.location.pathname == "/tastycat";
+}
+/**
+ * AnimeMusic.me and Japanese Music
+ */
+function isInHummingBird(){
+    return window.location.pathname == "/hummingbird-me";
+}
+/**
+ * Trance House Chill
+ */
+function isInTranceHouseChill(){
+    return window.location.pathname == "/trancehousechill";
+}
+/**
+ * SETTINGS
+ */
+var autoNotice = {
+    disabled: false,
+    onMention: 1,
+    onChat: 2
+};
+var autoJoinLeaveNotice = {
+    disabled: false,
+    all: 1,
+    moderators: 2
+};
+var settings = {
+    changedAutoW: false,
+    autoW: false,
+
+    changedAutoJ: false,
+    autoJ: false,
+
+    changedAutoNotice: false,
+    autoNotice: autoNotice.disabled,
+
+    changedAutoJoinLeaveNotice: false,
+    autoJoinLeaveNotice: autoJoinLeaveNotice.disabled,
+
+    changedAutoHUI: false,
+    autoHUI: false,
+    
+    changedAutoWL: false,
+    autoWL: false,
+    
+    showToolbar: true
+};
+function loadSettings(){
+    var localSettings = JSON.parse(localStorage.getItem('hybrisPlugDJSettings'));
+    if(localSettings){
+        for(var setting in settings){
+            if(typeof localSettings[setting] != 'undefined'){
+                settings[setting] = localSettings[setting];
+            }
+        }
+    }
+}
+function saveSettings(){
+    localStorage.setItem('hybrisPlugDJSettings', JSON.stringify(settings));
 }
 /**
  * STATS
@@ -116,7 +179,8 @@ if(!getEta){
         if(nbOfSec < 10){
             nbOfSec = "0" + nbOfSec;
         }
-        API.chatLog("Estimated Time Awaiting : " + nbOfHours + ":" + nbOfMinutes + ":" + nbOfSec, true);
+        if(debug){console.log("Mean duration: " + meanDuration);}
+        API.chatLog(":information_source: Estimated Time Awaiting : " + nbOfHours + ":" + nbOfMinutes + ":" + nbOfSec, true);
     };
 }
 
@@ -126,7 +190,7 @@ function askCurrentMehs(){
     var title = media.title;
     var audience = API.getAudience();
     var atLeastOneMeh = false;
-    API.chatLog("[Mehs] " + author + " - " + title, true);
+    API.chatLog(":thumbsdown: " + author + " - " + title, true);
     for(var i = 0; i < audience.length; i++){
         var user = audience[i];
         if(user.vote == -1){
@@ -144,7 +208,7 @@ function askCurrentGrabs(){
     var title = media.title;
     var audience = API.getAudience();
     var atLeastOneGrab = false;
-    API.chatLog("[Grabs] " + author + " - " + title, true);
+    API.chatLog(":thumbsup: " + author + " - " + title, true);
     for(var i = 0; i < audience.length; i++){
         var user = audience[i];
         if(user.grab){
@@ -157,6 +221,36 @@ function askCurrentGrabs(){
     }
 }
 
+function aboutHybris(){
+    API.chatLog(":information_source: [Features]", true);
+    API.chatLog("AutoWoot - Green: activated, Red: deactivated");
+    API.chatLog("AutoJoin - Green: activated, Red: deactivated");
+    API.chatLog("Chat sound - Green: mention, Blue: all, Red: none");
+    API.chatLog("Join/Leave notice - Green: all, Blue: moderators, Red: none");
+    API.chatLog("Hide user interface - Green: activated, Red: deactivated");
+    API.chatLog("Follow WaitList - Green: activated, Red: deactivated");
+    API.chatLog("ETA? - Get the Estimated Time Awaiting from the current position");
+    API.chatLog("Mehs? - Get the list of people who mehed the current media");
+    API.chatLog("Grabs? - Get the list of people who grabbed the current media");
+}
+
+/**
+ * CHANGE ROOM EVENT :
+ */
+var changeRoomEventHookedOnApi;
+var changeRoomFunction;// TODO - Effectively hook this on a room change event (dispatchevent ???)
+if(!changeRoomFunction){
+    changeRoomFunction = function() {
+        oldWaitList = API.getWaitList();
+        if(settings.autoW){
+            woot();
+        }
+        if(settings.autoJ){
+            join();
+        }
+    };
+}
+
 /**
  * ADVANCE EVENT :
  * AutoWoot and AutoHideUI
@@ -164,18 +258,22 @@ function askCurrentGrabs(){
 var advanceEventHookedOnApi;
 var advanceFunction;
 if(!advanceFunction){
-    advanceFunction = function() {
-        if(autoHUI){
+    advanceFunction = function(data) {
+        if(debug){console.log("Advance event");console.log(data);}
+        
+        // TODO - Say here your stats if you were the last one playing
+        
+        if(settings.autoHUI){
             hideUI();
         }else{
             showUI();
         }
         
-        if(autoW){
+        if(settings.autoW){
             woot();
         }
         
-        if(autoJ){
+        if(settings.autoJ){
             join();
         }
     };
@@ -185,133 +283,42 @@ function woot() {
     $("#woot").click();
 }
 
+function canAutoJoin(){
+    var canJoin = true;
+    if(canJoin && isInChill()){
+        canJoin = false;
+    }
+    if(canJoin && isInHummingBird()){
+        canJoin = false;
+    }
+    if(canJoin && isInTranceHouseChill()){
+        canJoin = false;
+    }
+    return canJoin;
+}
 function join() {
-    $("#dj-button").click();
-}
-
-var videoHeight;
-var videoWidth;
-function hideVideo() {
-    if(!videoHeight){
-        videoHeight = $("#playback-container").css("height");
-    }
-    if(!videoWidth){
-        videoWidth = $("#playback-container").css("width");
-    }
-    $("#playback-container").css("height", "0");
-    $("#playback-container").css("width", "0");
-}
-
-function showVideo() {
-    hideVideo();
-    if(videoHeight){
-        $("#playback-container").css("height", videoHeight);
-    }else{
-        $("#playback-container").css("height", "100%");
-    }
-    
-    if(videoWidth){
-        $("#playback-container").css("width", videoWidth);
-    }else{
-        $("#playback-container").css("width", "100%");
-    }
-}
-
-var background;
-var playbackBGHeight;
-var playbackBGWidth;
-function hideBG() {
-    var playbackImg = $("#playback > div:nth-child(1) > img:nth-child(1)");
-    if(!background){
-        background = $(".room-background").css("background-image");
-    }
-    $(".room-background").css("background-image","");
-    if(!playbackBGHeight){
-        playbackBGHeight = playbackImg.css("height");
-    }
-    if(!playbackBGWidth){
-        playbackBGWidth = playbackImg.css("width");
-    }
-    playbackImg.css("height", "0");
-    playbackImg.css("width", "0");
-}
-
-function showBG() {
-    hideBG();
-    if(background){
-        $(".room-background").css("background-image", background);
-    }else{
-        $(".room-background").css("background-image", "url(\"https://cdn.plug.dj/_/static/images/community/custom/2014hw/background.29748a148b0c5440ddc5899e07bc32b1a1d4b86c.jpg\")");// Halloween BG
-    }
-    var playbackImg = $("#playback > div:nth-child(1) > img:nth-child(1)");
-    if(playbackBGHeight){
-        playbackImg.css("height", playbackBGHeight);
-    }else{
-        playbackImg.css("height", "100%");
-    }
-    if(playbackBGWidth){
-        playbackImg.css("width", playbackBGWidth);
-    }else{
-        playbackImg.css("width", "100%");
-    }
-}
-
-var audienceHeight;
-var audienceWidth;
-var djboothHeight;
-var djboothWidth;
-function hideAvatars() {
-    if(!audienceHeight){
-        audienceHeight = $("#audience-canvas").css("height");
-    }
-    if(!audienceWidth){
-        audienceWidth = $("#audience-canvas").css("width");
-    }
-    $("#audience-canvas").css("height", "0");
-    $("#audience-canvas").css("width", "0");
-    if(!djboothHeight){
-        djboothHeight = $("#dj-canvas").css("height");
-    }
-    if(!djboothWidth){
-        djboothWidth = $("#dj-canvas").css("width");
-    }
-    $("#dj-canvas").css("height", "0");
-    $("#dj-canvas").css("width", "0");
-}
-
-function showAvatars() {
-    hideAvatars();
-    if(audienceHeight){
-        $("#audience-canvas").css("height", audienceHeight);
-    }else{
-        $("#audience-canvas").css("height", "100%");
-    }
-    if(audienceWidth){
-        $("#audience-canvas").css("width", audienceWidth);
-    }else{
-        $("#audience-canvas").css("width", "100%");
-    }
-    if(djboothHeight){
-        $("#dj-canvas").css("height", djboothHeight);
-    }else{
-        $("#dj-canvas").css("height", "100%");
-    }
-    if(djboothWidth){
-        $("#dj-canvas").css("width", djboothWidth);
-    }else{
-        $("#dj-canvas").css("width", "100%");
+    if(debug){console.log("Try to autojoin");}
+    if(canAutoJoin()){
+        if(debug){console.log("Autojoins for real");}
+        API.djJoin();
     }
 }
 
 function hideUI(){
-    hideVideo();
-    hideBG();
-    hideAvatars();
+    $('#playback-container').addClass('hide-video');
+    $('#playback').addClass('hide-video');
+    $("#audience-canvas").addClass('hide-video');
+    $("#dj-canvas").addClass('hide-video');
+    $('.background').hide();
+    $('.room-background').hide();
 }
 function showUI(){
-    showVideo();
-    showBG();
-    showAvatars();
+    $('#playback-container').removeClass('hide-video');
+    $('#playback').removeClass('hide-video');
+    $("#audience-canvas").removeClass('hide-video');
+    $("#dj-canvas").removeClass('hide-video');
+    $('.background').show();
+    $('.room-background').show();
 }
 
 /**
@@ -322,8 +329,9 @@ var autoJoinLeaveHookedOnApi;
 var someoneJoined;
 if(!someoneJoined){
     someoneJoined = function(user){
-    	if(autoJoinLeaveNotice) {
-            API.chatLog(user.username + " joined the room", true);
+        if(debug){console.log("Join event");console.log(user);}
+    	if((settings.autoJoinLeaveNotice == autoJoinLeaveNotice.all) || (settings.autoJoinLeaveNotice == autoJoinLeaveNotice.moderators && user.role > 0)) {
+            API.chatLog(":on: " + user.username + " joined the room", true);
     	}
     };
 }
@@ -334,9 +342,84 @@ if(!someoneJoined){
 var someoneLeft;
 if(!someoneLeft){
     someoneLeft = function(user){
-    	if(autoJoinLeaveNotice) {
-            API.chatLog(user.username + " left the room", false);
+        if(debug){console.log("Leave event");console.log(user);}
+    	if((settings.autoJoinLeaveNotice == autoJoinLeaveNotice.all) || (settings.autoJoinLeaveNotice == autoJoinLeaveNotice.moderators && user.role > 0)) {
+            API.chatLog(":end: " + user.username + " left the room", false);
     	}
+    };
+}
+
+/**
+ * WAIT LIST UPDATE EVENT :
+ * AutoWaitList
+ */
+var waitListUpdateHookedOnApi;
+var waitListUpdate;
+if(!waitListUpdate){
+    waitListUpdate = function(newWaitList){
+        if(debug){console.log("WaitListUpdate event");console.log(newWaitList);}
+        
+        // Recovers the addition in the new waitlist
+        if(settings.autoWL){
+            var currentDJ = API.getDJ();
+            if(debug){console.log("Current DJ");console.log(currentDJ);}
+            var currentHistory = API.getHistory();
+            var lastDJ = currentDJ;
+            if(currentHistory.length > 0){
+                var lastHistory = currentHistory[0];
+                lastDJ = lastHistory.user;
+                if(lastDJ.id == currentDJ.id && currentHistory.length > 1){
+                    lastHistory = currentHistory[1];
+                    lastDJ = lastHistory.user;
+                }
+            }
+            if(debug){console.log("Last DJ");console.log(lastDJ);}
+            var waitListAdd = new Array();
+            for(var i = 0; i < newWaitList.length; i++){
+                var userWaiting = newWaitList[i];
+                var isNew = true;
+                for(var j = 0; j < oldWaitList.length; j++){
+                    var userWasWaiting = oldWaitList[j];
+                    if(userWaiting.id == userWasWaiting.id){
+                        isNew = false;
+                    }
+                }
+                if(isNew){
+                    waitListAdd.push(userWaiting);
+                    if(lastDJ.id == userWaiting.id){
+                        API.chatLog(":up: " + userWaiting.username + " rejoined the waitlist");
+                    }else{
+                        API.chatLog(":new: " + userWaiting.username + " joined the waitlist");
+                    }
+                }
+            }
+            // Recovers the deletion in the new waitlist
+            var waitListDel = new Array();
+            for(var i = 0; i < oldWaitList.length; i++){
+                var userWasWaiting = oldWaitList[i];
+                var hasLeft = true;
+                for(var j = 0; j < newWaitList.length; j++){
+                    var userWaiting = newWaitList[j];
+                    if(userWaiting.id == userWasWaiting.id){
+                        hasLeft = false;
+                    }
+                }
+                if(hasLeft){
+                    waitListDel.push(userWasWaiting);
+                    if(currentDJ.id != userWasWaiting.id){
+                        API.chatLog(":free: " + userWasWaiting.username + " left the waitlist");
+                    }else{
+                        API.chatLog(":cool: " + userWasWaiting.username + " left the waitlist to become a DJ");
+                    }
+                }
+            }
+            if(debug){console.log(waitListAdd);console.log(waitListDel);}
+        }
+        oldWaitList = newWaitList;
+        
+        if(settings.autoJ){
+            join();
+        }
     };
 }
 /**
@@ -347,6 +430,7 @@ var chatEventHookedOnApi;
 var analyseChat;
 if(!analyseChat){
     analyseChat = function(chat){
+        if(debug){console.log("Chat event");console.log(chat);}
         var message = chat.message;
         var username = chat.un;
         var type = chat.type;
@@ -359,13 +443,30 @@ if(!analyseChat){
             lastTimeStamp = timestamp;
         }
         
-        // Watch PMs
-        if(message.match("@" + ownUserName))
-        {
-            if(debug){console.log(username + " told me : " + message);}
-            // AutoNotice
-            if(autoNotice){
-                loadedSound.play();
+        // Watch chat sent by other users
+        if(username != ownUserName){
+            if(type.startsWith("message")){
+                // AutoNotice (on every chat message)
+                if(settings.autoNotice == autoNotice.onChat){
+                    loadedSound.play();
+                }
+            }
+            else if(type.startsWith("mention")){
+                // AutoNotice (on mention message)
+                if(settings.autoNotice == autoNotice.onMention || settings.autoNotice == autoNotice.onChat){
+                    loadedSound.play();
+                }
+            }
+            else if(type.startsWith("emote")){
+                // AutoNotice (on mention message)
+                if(settings.autoNotice == autoNotice.onMention){
+                    if(message.match("@" + ownUserName)){
+                        loadedSound.play();
+                    }
+                }
+                else if(settings.autoNotice == autoNotice.onChat){
+                    loadedSound.play();
+                }
             }
         }
     };
@@ -390,90 +491,130 @@ function refreshAPIStatus()
         API.on(API.USER_LEAVE, someoneLeft);
         autoJoinLeaveHookedOnApi = true;
     }
+    
+    if(!waitListUpdateHookedOnApi){
+        API.on(API.WAIT_LIST_UPDATE, waitListUpdate);
+        waitListUpdateHookedOnApi = true;
+    }
 }
 function startAutoWoot(){
-    autoW = true;
-    $("#hybrisAutoWoot").css("background-color", "#105D2F");
+    settings.autoW = true;
     woot();
+    $("#hybrisAutoWoot").css("background-color", "#105D2F");
 }
 function stopAutoWoot(){
-    autoW = false;
+    settings.autoW = false;
     $("#hybrisAutoWoot").css("background-color", "#5D102F");
 }
 function switchAutoWoot(){
-    changedAutoW = true;
-    if(autoW){
+    settings.changedAutoW = true;
+    if(settings.autoW){
         stopAutoWoot();
     }else{
         startAutoWoot();
     }
-}
-function startAutoJoin(){
-    autoW = true;
-    $("#hybrisAutoJoin").css("background-color", "#105D2F");
-    join();
-}
-function stopAutoJoin(){
-    autoW = false;
-    $("#hybrisAutoJoin").css("background-color", "#5D102F");
-}
-function switchAutoJoin(){
-    changedAutoJ = true;
-    if(autoJ){
-        stopAutoJoin();
-    }else{
-        startAutoJoin();
-    }
+    saveSettings();
 }
 function startAutoNotice(){
-    autoNotice = true;
+    settings.autoNotice = autoNotice.onMention;
     $("#hybrisMention").css("background-color", "#105D2F");
 }
+function autoNoticeOnChat(){
+    settings.autoNotice = autoNotice.onChat;
+    $("#hybrisMention").css("background-color", "#102F5D");
+}
 function stopAutoNotice(){
-    autoNotice = false;
+    settings.autoNotice = autoNotice.disabled;
     $("#hybrisMention").css("background-color", "#5D102F");
 }
 function switchAutoNotice(){
-    changedAutoNotice = true;
-	if(autoNotice){
+    settings.changedAutoNotice = true;
+    // Cycle between AutoNotice values
+	if(settings.autoNotice == autoNotice.onMention){
+        autoNoticeOnChat();
+    }else if(settings.autoNotice == autoNotice.onChat){
 		stopAutoNotice();
 	}else{
 		startAutoNotice();
 	}
+    saveSettings();
 }
 function startAutoNoticeJoinersLeavers(){
-    autoJoinLeaveNotice = true;
+    settings.autoJoinLeaveNotice = autoJoinLeaveNotice.all;
     $("#hybrisJoiners").css("background-color", "#105D2F");
 }
+function filterAutoNoticeJoinersLeavers(){
+    settings.autoJoinLeaveNotice = autoJoinLeaveNotice.moderators;
+    $("#hybrisJoiners").css("background-color", "#102F5D");
+}
 function stopAutoNoticeJoinersLeavers(){
-    autoJoinLeaveNotice = false;
+    settings.autoJoinLeaveNotice = autoJoinLeaveNotice.disabled;
     $("#hybrisJoiners").css("background-color", "#5D102F");
 }
 function switchAutoNoticeJoinersLeavers(){
-    changedAutoJoinLeaveNotice = true;
-    if(autoJoinLeaveNotice){
+    settings.changedAutoJoinLeaveNotice = true;
+    if(settings.autoJoinLeaveNotice == autoJoinLeaveNotice.all){
+        filterAutoNoticeJoinersLeavers();
+    }else if(settings.autoJoinLeaveNotice == autoJoinLeaveNotice.moderators){
         stopAutoNoticeJoinersLeavers();
     }else{
         startAutoNoticeJoinersLeavers();
     }
+    saveSettings();
 }
 function startAutoHUI(){
-    autoHUI = true;
-    $("#hybrisUIToggle").css("background-color", "#105D2F");
+    settings.autoHUI = true;
     hideUI();
+    $("#hybrisUIToggle").css("background-color", "#105D2F");
 }
 function stopAutoHUI(){
-    autoHUI = false;
-    $("#hybrisUIToggle").css("background-color", "#5D102F");
+    settings.autoHUI = false;
     showUI();
+    $("#hybrisUIToggle").css("background-color", "#5D102F");
 }
 function switchAutoHUI(){
-    changedAutoHUI = true;
-    if(!autoHUI){
+    settings.changedAutoHUI = true;
+    if(!settings.autoHUI){
         startAutoHUI();
     }else{
         stopAutoHUI();
     }
+    saveSettings();
+}
+function startAutoWL(){
+    settings.autoWL = true;
+    $("#hybrisWaitList").css("background-color", "#105D2F");
+}
+function stopAutoWL(){
+    settings.autoWL = false;
+    $("#hybrisWaitList").css("background-color", "#5D102F");
+}
+function switchAutoWaitList(){
+    settings.changedAutoWL = true;
+    if(!settings.autoWL){
+        startAutoWL();
+    }else{
+        stopAutoWL();
+    }
+    saveSettings();
+}
+function startAutoJoin(){
+    settings.autoJ = true;
+    join();
+    $("#hybrisAutoJoin").css("background-color", "#105D2F");
+}
+function stopAutoJoin(){
+    settings.autoJ = false;
+    $("#hybrisAutoJoin").css("background-color", "#5D102F");
+}
+function switchAutoJoin(){
+    settings.changedAutoJ = true;
+    if(settings.autoJ){
+        stopAutoJoin();
+    }else{
+        startAutoJoin();
+    }
+    saveSettings();
 }
 /**
  * UI Management
@@ -512,18 +653,21 @@ function getButtonWidth(){
     return getIconWidth() + marginRight;
 }
 var hybrisHeaderHeight = 46;
-var hybrisHeaderLeftPos = 10;
-var nbOfBorders = 2;
+var hybrisHeaderLeftPadding = 10;
 var sizeAboveChatInput = 10;
 function hideToolTip(){
 	$("#tooltip").remove();
 }
 function getTooltipLeftPos(buttonNumber){
     var nbButtons = buttonNumber * getButtonWidth();
-    return getAppWidth() - getChatWidth() + hybrisHeaderLeftPos + nbButtons + (getIconWidth() / 2);
+    return hybrisHeaderLeftPadding + nbButtons + (getIconWidth() / 2);
 }
 function getTooltipTopPos(){
-    return getChatHeight() - (getIconHeight() / 2) - sizeAboveChatInput;
+    var hybrisHeader = $("#hybrisHeader");
+    var topString = hybrisHeader.css("top");
+    topString = topString.substring(0, topString.length - 2);
+    var topInt = parseInt(topString);
+    return topInt - (getIconHeight() / 2) - sizeAboveChatInput;
 }
 var buttonsLibrary;
 if(!buttonsLibrary){
@@ -535,7 +679,7 @@ function Button(htmlId, htmlClass, clickFunction, toolTipInfo, buttonNumber){
     this.number = buttonNumber;
     
     if($("#"+this.htmlId).length == 0){
-        $("#hybrisHeader").append("<div id=\"" + this.htmlId + "\" class=\"chat-header-button\"><i class=\"icon " + this.htmlClass + "\"></i></div>");
+        $("#hybrisButtonsContainer").append("<div id=\"" + this.htmlId + "\" class=\"chat-header-button\"><i class=\"icon " + this.htmlClass + "\"></i></div>");
     }
     this.updateClick(clickFunction);
     this.updateToolTip(toolTipInfo);
@@ -572,73 +716,144 @@ Button.prototype.updateToolTip = function(toolTipInfo){
     });
     this.toolTipInfo = toolTipInfo;
 };
+
 function setupButton(htmlId, htmlClass, clickFunction, toolTipInfo){
     if(buttonsLibrary.has(htmlId)){
         var button = buttonsLibrary[htmlId];
-        button.updateClass(htmlClass);
-        button.updateClick(clickFunction);
-        button.updateToolTip(toolTipInfo);
-    }else{
+        try{
+            button.updateClass(htmlClass);
+            button.updateClick(clickFunction);
+            button.updateToolTip(toolTipInfo);
+        }
+        catch(exc){
+            buttonsLibrary.delete(htmlId);
+        }
+    }
+    
+    if(!buttonsLibrary.has(htmlId)){
         var buttonNumber = buttonsLibrary.size;
         var button = new Button(htmlId, htmlClass, clickFunction, toolTipInfo, buttonNumber);
         buttonsLibrary.set(htmlId, button);
     }
 }
-var alreadyMovedSuggestion;
+var buttonMarginRight;
+if(!buttonMarginRight){
+    var str = $(".chat-header-button").css("margin-right");
+    str = str.substring(0, str.length - 2);
+    buttonMarginRight = parseInt(str);
+}
+var buttonWidth = $(".chat-header-button").width();
 function setupHybrisToolBar(){
-	var chatHeight = getChatHeight();
-	var chatHeaderHeight = getChatHeaderHeight();
-	var chatInputHeight = getChatInputHeight();
-	
-	var newChatMessagesHeight = chatHeight - chatHeaderHeight - chatInputHeight - hybrisHeaderHeight - nbOfBorders - sizeAboveChatInput;
-	
-	if(!alreadyMovedSuggestion){
-		var suggestionBottom = $("#chat-suggestion").css("bottom");
-		suggestionBottom = suggestionBottom.substring(0, suggestionBottom.length - 2);
-		suggestionBottom = parseInt(suggestionBottom);
-		$("#chat-suggestion").css("bottom", suggestionBottom + hybrisHeaderHeight);
-		alreadyMovedSuggestion = true;
-	}
-
-    var currentMessagesHeight = $("#chat-messages").height();
-    if(currentMessagesHeight != newChatMessagesHeight){
-        $("#chat-messages").fadeOut("fast").promise().done(function(){
-            $("#chat-messages").css("height", newChatMessagesHeight + "px");
-            $("#chat-messages").fadeIn("slow");
-        });
-        $("#chat-input").fadeOut("fast").promise().done(function(){
-            $("#chat-input").css("bottom", hybrisHeaderHeight + "px");
-            $("#chat-input").fadeIn("slow");
-        });
+    var hybrisHeader = $("#hybrisHeader");
+    if(hybrisHeader.length > 0){// Reload
+        hybrisHeader.remove();
+        buttonsLibrary.clear();
+    }else{// First load
+        $('head').append('<style type="text/css" id="hybrisPlug-css">#playback.hide-video,#playback .hide-video,#audience-canvas.hide-video,#audience-canvas .hide-video,#dj-canvas.hide-video,#dj-canvas .hide-video{height:0 !important}</style>');
     }
-    if($("#hybrisHeader").length == 0){
-        $("#chat").append("<div id=\"hybrisHeader\"><div class=\"divider\" /></div>");
+    hybrisHeader = $("#hybrisHeader");
+    if(hybrisHeader.length == 0){
+        $("#room").append("<div id=\"hybrisHeader\"></div>");
+        hybrisHeader = $("#hybrisHeader");
     }
-    $("#hybrisHeader").hide();
-    $("#hybrisHeader").css("position", "absolute");
-    $("#hybrisHeader").css("height", hybrisHeaderHeight + "px");
-    $("#hybrisHeader").css("bottom", "0px");
-    $("#hybrisHeader").css("left", hybrisHeaderLeftPos + "px");
-    $("#hybrisHeader").css("width", "100%");
+    hybrisHeader.hide();
+    hybrisHeader.css("position", "absolute");
+    var djbuttonTopString = $("#dj-button").css("top");
+    djbuttonTopString = djbuttonTopString.substring(0, djbuttonTopString.length - 2);
+    var djbuttonTopInt = parseInt(djbuttonTopString);
+    hybrisHeader.css("top", (djbuttonTopInt - 50) + "px");
+    hybrisHeader.css("z-index", 9);
+    hybrisHeader.css("background-color", "#282C35");
+    hybrisHeader.css("padding-left", hybrisHeaderLeftPadding + "px");
+    hybrisHeader.css("border-top-right-radius", "4px");
+    hybrisHeader.css("border-bottom-right-radius", "4px");
+    
+    var hybrisButtonsContainer = $("#hybrisButtonsContainer");
+    if(hybrisButtonsContainer.length == 0){
+        hybrisHeader.append("<div id=\"hybrisButtonsContainer\" />");
+        hybrisButtonsContainer = $("#hybrisButtonsContainer");
+    }
+    
     setupButton("hybrisAutoWoot", "icon-woot-disabled", switchAutoWoot, "AutoWoot");
-    setupButton("hybrisAutoJoin", "icon-join-disabled", switchAutoJoin, "AutoJoin");
-    setupButton("hybrisMention", "icon-chat-sound-on", switchAutoNotice, "Mention sound notification");
+    if(canAutoJoin()) {
+        setupButton("hybrisAutoJoin", "icon-about-white", switchAutoJoin, "AutoJoin");
+    }
+    setupButton("hybrisMention", "icon-chat-sound-on", switchAutoNotice, "Chat sound notification");
     setupButton("hybrisJoiners", "icon-ignore", switchAutoNoticeJoinersLeavers, "Joiners/Leavers notification");
-    setupButton("hybrisEta", "icon-history-white", getEta, "Give ETA");
     setupButton("hybrisUIToggle", "icon-logout-white", switchAutoHUI, "Hide User Interface");
+    setupButton("hybrisWaitList", "icon-waitlist", switchAutoWaitList, "Follow WaitList");
+    setupButton("hybrisEta", "icon-history-white", getEta, "ETA?");
     setupButton("hybrisMehBtn", "icon-meh", askCurrentMehs, "Mehs?");
     setupButton("hybrisGrabBtn", "icon-grab", askCurrentGrabs, "Grabs?");
-    $("#hybrisHeader").slideDown();
-}
-/**
- * Main function (executed at loading)
- */
-function main(){
-    setupHybrisToolBar();
-    refreshAPIStatus();
+    setupButton("hybrisAbout", "icon-ep-small", aboutHybris, "Help");
+    hybrisHeader.css("height", hybrisHeaderHeight + "px");
     
-    if(changedAutoW){
-        if(autoW){
+    var toggleHybrisBar = $("#toggleHybrisBar");
+    if(toggleHybrisBar.length == 0){
+        hybrisHeader.append("<div id=\"toggleHybrisBar\"><i class=\"icon icon-next-track\" /></div>");
+        toggleHybrisBar = $("#toggleHybrisBar");
+    }
+    toggleHybrisBar.css("background-color", "#282C35");
+    toggleHybrisBar.css("position", "relative");
+    toggleHybrisBar.css("padding-top", "8px");
+    toggleHybrisBar.css("padding-bottom", "8px");
+    toggleHybrisBar.css("width", "30px");
+    toggleHybrisBar.css("height", "30px");
+    toggleHybrisBar.css("float", "left");
+    var toggleSideBorder = 1;
+    toggleHybrisBar.css("border-left", toggleSideBorder + "px solid black");
+    toggleHybrisBar.css("cursor", "pointer");
+    toggleHybrisBar.css("border-top-right-radius", "4px");
+    toggleHybrisBar.css("border-bottom-right-radius", "4px");
+    toggleHybrisBar.unbind('click.hybris');
+    toggleHybrisBar.bind('click.hybris', function(){
+        var toggleHybrisBar = $("#toggleHybrisBar");
+        var buttonContainer = $("#hybrisButtonsContainer");
+        var nbButtons = buttonsLibrary.size;
+        $("#hybrisHeader").css("width", ((nbButtons * buttonMarginRight) + (nbButtons * buttonWidth) + toggleHybrisBar.width() + toggleSideBorder) + "px");
+        settings.showToolbar = !settings.showToolbar;
+        saveSettings();
+        if(settings.showToolbar){
+            buttonContainer.show();// TODO - Add an animation on the toggle to make it slide left/right
+        }else{
+            buttonContainer.hide();// TODO - Add an animation on the toggle to make it slide left/right
+            $("#hybrisHeader").css("width", (toggleHybrisBar.width() + toggleSideBorder) + "px");
+        }
+    });
+    toggleHybrisBar.unbind('mouseleave.hybris');
+    toggleHybrisBar.bind('mouseleave.hybris', hideToolTip);
+    toggleHybrisBar.unbind('mouseenter.hybris');
+    toggleHybrisBar.bind('mouseenter.hybris', function(){
+        hideToolTip();
+        var buttonContainer = $("#hybrisButtonsContainer");
+        var tooltipTopPos = getTooltipTopPos();
+        var tooltipLeftPos = 0;
+        var tooltipText = "";
+        if(buttonContainer.css("display") == "block"){
+            tooltipLeftPos = getTooltipLeftPos(buttonsLibrary.size);
+            tooltipText = "Hide Hybris Toolbar";
+        }else{
+            tooltipLeftPos = getTooltipLeftPos(0);
+            tooltipText = "Show Hybris Toolbar";
+        }
+        $("body").append("<div id=\"tooltip\"><span>" + tooltipText + "</span><div class=\"corner\"></div></div>");
+        $("#tooltip").css("left", tooltipLeftPos + "px");
+        $("#tooltip").css("top", tooltipTopPos + "px");
+    });
+    
+    var nbButtons = buttonsLibrary.size;
+    hybrisHeader.css("width", ((nbButtons * buttonMarginRight) + (nbButtons * buttonWidth) + toggleHybrisBar.width() + toggleSideBorder) + "px");
+    if(settings.showToolbar){
+        hybrisButtonsContainer.show();
+    }else{
+        hybrisButtonsContainer.hide();
+        $("#hybrisHeader").css("width", (toggleHybrisBar.width() + toggleSideBorder) + "px");
+    }
+    hybrisHeader.slideDown();
+}
+function loadToggleModes(){
+    if(settings.changedAutoW){
+        if(settings.autoW){
             startAutoWoot();
         }else{
             stopAutoWoot();
@@ -647,8 +862,8 @@ function main(){
         stopAutoWoot();
     }
     
-    if(changedAutoJ){
-        if(autoJ){
+    if(settings.changedAutoJ){
+        if(settings.autoJ){
             startAutoJoin();
         }else{
             stopAutoJoin();
@@ -657,9 +872,11 @@ function main(){
         stopAutoJoin();
     }
     
-    if(changedAutoNotice){
-        if(autoNotice){
+    if(settings.changedAutoNotice){
+        if(settings.autoNotice == autoNotice.onMention){
             startAutoNotice();
+        }else if(settings.autoNotice == autoNotice.onChat){
+            autoNoticeOnChat();
         }else{
             stopAutoNotice();
         }
@@ -667,9 +884,11 @@ function main(){
         stopAutoNotice();
     }
     
-    if(changedAutoJoinLeaveNotice){
-        if(autoJoinLeaveNotice){
+    if(settings.changedAutoJoinLeaveNotice){
+        if(settings.autoJoinLeaveNotice == autoJoinLeaveNotice.all){
             startAutoNoticeJoinersLeavers();
+        }else if(settings.autoJoinLeaveNotice == autoJoinLeaveNotice.moderators){
+            filterAutoNoticeJoinersLeavers();
         }else{
             stopAutoNoticeJoinersLeavers();
         }
@@ -677,8 +896,8 @@ function main(){
         stopAutoNoticeJoinersLeavers();
     }
     
-    if(changedAutoHUI){
-        if(autoHUI){
+    if(settings.changedAutoHUI){
+        if(settings.autoHUI){
             startAutoHUI();
         }else{
             stopAutoHUI();
@@ -686,5 +905,27 @@ function main(){
     }else{
         stopAutoHUI();
     }
+    
+    if(settings.changedAutoWL){
+        if(settings.autoWL){
+            startAutoWL();
+        }else{
+            stopAutoWL();
+        }
+    }else{
+        stopAutoWL();
+    }
+    
+    // Saves in a JSON file all the settings
+    saveSettings();
 }
-$(document).ready(main);
+/**
+ * Main function (executed at loading)
+ */
+function main(){
+    loadSettings();
+    setupHybrisToolBar();
+    refreshAPIStatus();
+    loadToggleModes();
+}
+$(document).ready(main);// TODO - Reload the script if you change room (refresh UI)

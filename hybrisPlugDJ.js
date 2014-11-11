@@ -323,6 +323,7 @@ function showUI(){
 }
 function updateQueueStatus(){
 	if(API.getWaitListPosition() == 0) {
+		alert('teste');
 		API.chatLog('Get ready @' + user.username + ', you\'re about to play!');
 		$('#waitlist-button').addClass('blue-bg');               
 	}

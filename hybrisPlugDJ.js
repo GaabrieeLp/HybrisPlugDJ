@@ -44,7 +44,7 @@ var ownUserName = API.getUser().username;
 var lastTimeStamp;
 var loadedSound;
 if(!loadedSound){
-    loadedSound = new Audio(decodeURIComponent("https://gmflowplayer.googlecode.com/files/notify.ogg"));
+    loadedSound = new  Audio("https://dl.dropboxusercontent.com/s/1qwhgujn6d0rbq7/chatsound.mp3");   //(decodeURIComponent("https://gmflowplayer.googlecode.com/files/notify.ogg"));
 }
 var oldWaitList = API.getWaitList();
 
